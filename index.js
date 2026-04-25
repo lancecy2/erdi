@@ -149,9 +149,7 @@ async function handleSetupVerify(interaction) {
 }
 
 async function sendVerificationPanel(channel) {
-  const state = crypto.randomBytes(24).toString('hex');
-  states.set(state, { createdAt: Date.now() });
-  const authorizeUrl = buildAuthorizeUrl(state);
+  const verifyUrl = `${config.baseUrl}/verify`;
 
   const embed = new EmbedBuilder()
     .setTitle('\u2705 Server Verification')
@@ -171,7 +169,7 @@ async function sendVerificationPanel(channel) {
     new ButtonBuilder()
       .setLabel('Verify Now')
       .setStyle(ButtonStyle.Link)
-      .setURL(authorizeUrl),
+      .setURL(verifyUrl),
   );
 
   await channel.send({ embeds: [embed], components: [row] });
@@ -566,6 +564,12 @@ function startOAuthServer() {
     try {
       const url = new URL(req.url, config.baseUrl);
 
+      if (url.pathname === '/verify') {
+        const state = createOAuthState();
+        redirect(res, buildAuthorizeUrl(state));
+        return;
+      }
+
       if (url.pathname !== '/oauth/callback') {
         sendHtml(res, 404, buildVerificationPage({
           status: 'error',
@@ -585,8 +589,8 @@ function startOAuthServer() {
           status: 'error',
           eyebrow: 'Verification failed',
           title: 'Your verification session expired',
-          message: 'For your security, verification links only work once and expire quickly. Please go back to Discord and click Verify Now again.',
-          details: ['No server access was changed.', 'A fresh link will start a new secure session.'],
+          message: 'For your security, each verification session only works once and expires quickly. Please go back to Discord and click Verify Now again.',
+          details: ['No server access was changed.', 'Clicking the same Discord button will start a fresh secure session.'],
         }));
         return;
       }
@@ -850,6 +854,13 @@ function cleanupStates() {
   }
 }
 
+function createOAuthState() {
+  cleanupStates();
+  const state = crypto.randomBytes(24).toString('hex');
+  states.set(state, { createdAt: Date.now() });
+  return state;
+}
+
 function buildVerificationPage({ status, eyebrow, title, message, details = [] }) {
   const isSuccess = status === 'success';
   const detailItems = details.map((detail) => `<li>${escapeHtml(detail)}</li>`).join('');
@@ -883,6 +894,14 @@ function buildVerificationPage({ status, eyebrow, title, message, details = [] }
       </section>
     </main>
   `;
+}
+
+function redirect(res, location) {
+  res.writeHead(302, {
+    Location: location,
+    'Cache-Control': 'no-store',
+  });
+  res.end();
 }
 
 function sendHtml(res, status, body) {
