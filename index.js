@@ -109,6 +109,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
+    if (interaction.commandName === 'join-all-authorized') {
+      await handleJoinAllAuthorized(interaction);
+      return;
+    }
+
     if (interaction.commandName === 'authorized-list') {
       await handleAuthorizedList(interaction);
     }
@@ -482,6 +487,68 @@ async function handleJoinAuthorized(interaction) {
   }
 
   await interaction.editReply(`Added <@${userId}> to the server, or they were already here.`);
+}
+
+async function handleJoinAllAuthorized(interaction) {
+  assertCanAdmin(interaction);
+  await interaction.deferReply({ ephemeral: true });
+
+  const users = readAuthorizedUsers();
+  const userIds = Object.keys(users);
+
+  if (userIds.length === 0) {
+    await interaction.editReply('No authorized users have been saved yet.');
+    return;
+  }
+
+  const results = {
+    added: 0,
+    alreadyInServer: 0,
+    failed: [],
+  };
+
+  for (const userId of userIds) {
+    try {
+      const token = await getValidAccessToken(userId, users[userId]);
+      const response = await discordFetch(`/guilds/${config.guildId}/members/${userId}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          access_token: token,
+          roles: [config.memberRoleId],
+        }),
+      });
+
+      if (response.status === 201) {
+        results.added += 1;
+        continue;
+      }
+
+      if (response.status === 204) {
+        results.alreadyInServer += 1;
+        continue;
+      }
+
+      const text = await response.text();
+      results.failed.push({ userId, reason: `${response.status} ${text}`.slice(0, 180) });
+    } catch (error) {
+      results.failed.push({ userId, reason: String(error.message || error).slice(0, 180) });
+    }
+  }
+
+  const failedPreview = results.failed
+    .slice(0, 8)
+    .map((failure) => `- <@${failure.userId}> (${failure.userId}): ${escapeMarkdown(failure.reason)}`)
+    .join('\n');
+  const hiddenFailures = results.failed.length > 8 ? `\n...and ${results.failed.length - 8} more failed.` : '';
+
+  await interaction.editReply([
+    `Processed ${userIds.length} authorized user(s).`,
+    '',
+    `Added: **${results.added}**`,
+    `Already in server: **${results.alreadyInServer}**`,
+    `Failed: **${results.failed.length}**`,
+    failedPreview ? `\nFailures:\n${failedPreview}${hiddenFailures}` : '',
+  ].filter(Boolean).join('\n'));
 }
 
 async function handleAuthorizedList(interaction) {
