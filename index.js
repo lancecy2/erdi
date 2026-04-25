@@ -42,7 +42,6 @@ const dataDir = path.join(__dirname, 'data');
 const usersFile = path.join(dataDir, 'authorized-users.json');
 const ticketsFile = path.join(dataDir, 'tickets.json');
 const states = new Map();
-const verifyButtonId = 'verify:start';
 const ticketButtonId = 'ticket:open';
 const ticketModalId = 'ticket:order-modal';
 const ticketCloseButtonId = 'ticket:close';
@@ -68,11 +67,6 @@ client.once(Events.ClientReady, (readyClient) => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   try {
-    if (interaction.isButton() && interaction.customId === verifyButtonId) {
-      await handleVerifyButton(interaction);
-      return;
-    }
-
     if (interaction.isButton() && interaction.customId === ticketButtonId) {
       await handleOpenTicketButton(interaction);
       return;
@@ -155,6 +149,8 @@ async function handleSetupVerify(interaction) {
 }
 
 async function sendVerificationPanel(channel) {
+  const authorizeUrl = buildAuthorizeUrl();
+
   const embed = new EmbedBuilder()
     .setTitle('\u2705 Server Verification')
     .setDescription([
@@ -171,29 +167,12 @@ async function sendVerificationPanel(channel) {
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
-      .setCustomId(verifyButtonId)
       .setLabel('Verify Now')
-      .setStyle(ButtonStyle.Primary),
-  );
-
-  await channel.send({ embeds: [embed], components: [row] });
-}
-
-async function handleVerifyButton(interaction) {
-  const state = createOAuthState();
-  const authorizeUrl = buildAuthorizeUrl(state);
-  const row = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setLabel('Authorize with Discord')
       .setStyle(ButtonStyle.Link)
       .setURL(authorizeUrl),
   );
 
-  await interaction.reply({
-    content: 'Click below to open Discord authorization. This private link is only for you and expires shortly.',
-    components: [row],
-    ephemeral: true,
-  });
+  await channel.send({ embeds: [embed], components: [row] });
 }
 
 async function handleSetupTicket(interaction) {
@@ -605,18 +584,18 @@ function startOAuthServer() {
       const code = url.searchParams.get('code');
       const state = url.searchParams.get('state');
 
-      if (!code || !state || !states.has(state)) {
+      if (!code || (state && !states.has(state))) {
         sendHtml(res, 400, buildVerificationPage({
           status: 'error',
           eyebrow: 'Verification failed',
           title: 'Your verification session expired',
-          message: 'For your security, each verification session only works once and expires quickly. Please go back to Discord and click Verify Now again.',
-          details: ['No server access was changed.', 'Clicking the same Discord button will start a fresh secure session.'],
+          message: 'Please go back to Discord and click Verify Now again.',
+          details: ['No server access was changed.', 'A fresh authorization attempt should fix this.'],
         }));
         return;
       }
 
-      states.delete(state);
+      if (state) states.delete(state);
       cleanupStates();
 
       const token = await exchangeCode(code);
@@ -831,9 +810,10 @@ function buildAuthorizeUrl(state) {
     redirect_uri: redirectUri,
     response_type: 'code',
     scope: 'identify guilds.join',
-    state,
     prompt: 'consent',
   });
+
+  if (state) params.set('state', state);
 
   return `https://discord.com/oauth2/authorize?${params.toString()}`;
 }
