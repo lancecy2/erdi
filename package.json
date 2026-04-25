@@ -1,0 +1,17 @@
+{
+  "name": "dcx",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "register": "node register-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.26.3",
+    "mongodb": "^5.9.0"
+  }
+}

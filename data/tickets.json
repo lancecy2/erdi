@@ -1,0 +1,209 @@
+{
+  "1497279072391397508": {
+    "userId": "1149205802603794442",
+    "username": "lancedablu_",
+    "orderId": "123",
+    "createdAt": "2026-04-24T16:52:29.641Z",
+    "done": false
+  },
+  "1497279733623427143": {
+    "userId": "1154067559361036319",
+    "username": "erdionnn1",
+    "orderId": "123123123",
+    "createdAt": "2026-04-24T16:55:07.345Z",
+    "done": true,
+    "doneAt": "2026-04-24T18:03:54.649Z",
+    "doneBy": "1154067559361036319",
+    "itemName": "Skeleton Spawner",
+    "quantity": 123123
+  },
+  "1497289921730445454": {
+    "userId": "1149205802603794442",
+    "username": "lancedablu_",
+    "orderId": "123123",
+    "itemName": "Skeleton Spawner",
+    "createdAt": "2026-04-24T17:35:36.371Z",
+    "done": true,
+    "doneAt": "2026-04-24T17:35:57.494Z",
+    "doneBy": "1149205802603794442",
+    "quantity": 10,
+    "closedAt": "2026-04-24T17:36:04.368Z",
+    "closedBy": "1149205802603794442"
+  },
+  "1497297465647431780": {
+    "userId": "1149205802603794442",
+    "username": "lancedablu_",
+    "orderId": "ABCDEFG",
+    "itemName": "Donut Money",
+    "createdAt": "2026-04-24T18:05:35.023Z",
+    "done": false
+  },
+  "1497302527316857066": {
+    "userId": "1149205802603794442",
+    "username": "lancedablu_",
+    "orderId": "ERDI-20260418-XJJRP9",
+    "orderSnapshot": {
+      "id": "ERDI-20260418-XJJRP9",
+      "status": "paid",
+      "createdAt": "2026-04-18T06:12:43.289Z",
+      "updatedAt": "2026-04-18T06:19:58.025Z",
+      "buyer": {
+        "ign": "Lancecy123",
+        "discordTag": "lancecydablu"
+      },
+      "payment": {
+        "method": "crypto",
+        "coin": "LTC",
+        "currency": "USD"
+      },
+      "pricing": {
+        "totalItems": 2,
+        "subtotal": 0.9199999999999999,
+        "total": 0.9199999999999999
+      },
+      "cart": [
+        {
+          "name": "1M Donut Money",
+          "price": 0.18,
+          "quantity": 1
+        },
+        {
+          "name": "Skeleton Spawner",
+          "price": 0.74,
+          "quantity": 1
+        }
+      ]
+    },
+    "createdAt": "2026-04-24T18:25:41.900Z",
+    "done": false
+  },
+  "1497304696766074970": {
+    "userId": "1149205802603794442",
+    "username": "lancedablu_",
+    "orderId": "ERDI-20260418-XJJRP9",
+    "orderSnapshot": {
+      "id": "ERDI-20260418-XJJRP9",
+      "status": "paid",
+      "createdAt": "2026-04-18T06:12:43.289Z",
+      "updatedAt": "2026-04-18T06:19:58.025Z",
+      "buyer": {
+        "ign": "Lancecy123",
+        "discordTag": "lancecydablu"
+      },
+      "payment": {
+        "method": "crypto",
+        "coin": "LTC",
+        "currency": "USD"
+      },
+      "pricing": {
+        "totalItems": 2,
+        "subtotal": 0.9199999999999999,
+        "total": 0.9199999999999999
+      },
+      "cart": [
+        {
+          "name": "1M Donut Money",
+          "price": 0.18,
+          "quantity": 1
+        },
+        {
+          "name": "Skeleton Spawner",
+          "price": 0.74,
+          "quantity": 1
+        }
+      ]
+    },
+    "createdAt": "2026-04-24T18:34:19.435Z",
+    "done": true,
+    "doneAt": "2026-04-24T18:34:58.734Z",
+    "doneBy": "1149205802603794442",
+    "deliveredItems": [
+      {
+        "name": "Donut Money",
+        "quantity": "1M"
+      },
+      {
+        "name": "Skeleton Spawner",
+        "quantity": "x1"
+      }
+    ]
+  },
+  "1497306638355533996": {
+    "userId": "1149205802603794442",
+    "username": "lancedablu_",
+    "orderId": "ERDI-20260418-XJJRP9",
+    "orderSnapshot": {
+      "id": "ERDI-20260418-XJJRP9",
+      "status": "paid",
+      "createdAt": "2026-04-18T06:12:43.289Z",
+      "updatedAt": "2026-04-18T06:19:58.025Z",
+      "buyer": {
+        "ign": "Lancecy123",
+        "discordTag": "lancecydablu"
+      },
+      "payment": {
+        "method": "crypto",
+        "coin": "LTC",
+        "currency": "USD"
+      },
+      "pricing": {
+        "totalItems": 2,
+        "subtotal": 0.9199999999999999,
+        "total": 0.9199999999999999
+      },
+      "cart": [
+        {
+          "name": "1M Donut Money",
+          "price": 0.18,
+          "quantity": 1
+        },
+        {
+          "name": "Skeleton Spawner",
+          "price": 0.74,
+          "quantity": 1
+        }
+      ]
+    },
+    "createdAt": "2026-04-24T18:42:02.136Z",
+    "done": false
+  },
+  "1497320902721929336": {
+    "userId": "1154067559361036319",
+    "username": "erdionnn1",
+    "orderId": "ERDI-20260418-XJJRP9",
+    "orderSnapshot": {
+      "id": "ERDI-20260418-XJJRP9",
+      "status": "paid",
+      "createdAt": "2026-04-18T06:12:43.289Z",
+      "updatedAt": "2026-04-18T06:19:58.025Z",
+      "buyer": {
+        "ign": "Lancecy123",
+        "discordTag": "lancecydablu"
+      },
+      "payment": {
+        "method": "crypto",
+        "coin": "LTC",
+        "currency": "USD"
+      },
+      "pricing": {
+        "totalItems": 2,
+        "subtotal": 0.9199999999999999,
+        "total": 0.9199999999999999
+      },
+      "cart": [
+        {
+          "name": "1M Donut Money",
+          "price": 0.18,
+          "quantity": 1
+        },
+        {
+          "name": "Skeleton Spawner",
+          "price": 0.74,
+          "quantity": 1
+        }
+      ]
+    },
+    "createdAt": "2026-04-24T19:38:42.918Z",
+    "done": false
+  }
+}
