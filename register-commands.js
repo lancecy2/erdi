@@ -46,6 +46,11 @@ const commands = [
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
   new SlashCommandBuilder()
+    .setName('join-all-authorized')
+    .setDescription('Add every saved authorized user to this server.')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+
+  new SlashCommandBuilder()
     .setName('authorized-list')
     .setDescription('Show users who have authorized the bot.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
