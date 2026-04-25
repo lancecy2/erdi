@@ -42,6 +42,7 @@ const dataDir = path.join(__dirname, 'data');
 const usersFile = path.join(dataDir, 'authorized-users.json');
 const ticketsFile = path.join(dataDir, 'tickets.json');
 const states = new Map();
+const verifyButtonId = 'verify:start';
 const ticketButtonId = 'ticket:open';
 const ticketModalId = 'ticket:order-modal';
 const ticketCloseButtonId = 'ticket:close';
@@ -67,6 +68,11 @@ client.once(Events.ClientReady, (readyClient) => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   try {
+    if (interaction.isButton() && interaction.customId === verifyButtonId) {
+      await handleVerifyButton(interaction);
+      return;
+    }
+
     if (interaction.isButton() && interaction.customId === ticketButtonId) {
       await handleOpenTicketButton(interaction);
       return;
@@ -149,8 +155,6 @@ async function handleSetupVerify(interaction) {
 }
 
 async function sendVerificationPanel(channel) {
-  const verifyUrl = `${config.baseUrl}/verify`;
-
   const embed = new EmbedBuilder()
     .setTitle('\u2705 Server Verification')
     .setDescription([
@@ -167,12 +171,29 @@ async function sendVerificationPanel(channel) {
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
+      .setCustomId(verifyButtonId)
       .setLabel('Verify Now')
-      .setStyle(ButtonStyle.Link)
-      .setURL(verifyUrl),
+      .setStyle(ButtonStyle.Primary),
   );
 
   await channel.send({ embeds: [embed], components: [row] });
+}
+
+async function handleVerifyButton(interaction) {
+  const state = createOAuthState();
+  const authorizeUrl = buildAuthorizeUrl(state);
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel('Authorize with Discord')
+      .setStyle(ButtonStyle.Link)
+      .setURL(authorizeUrl),
+  );
+
+  await interaction.reply({
+    content: 'Click below to open Discord authorization. This private link is only for you and expires shortly.',
+    components: [row],
+    ephemeral: true,
+  });
 }
 
 async function handleSetupTicket(interaction) {
