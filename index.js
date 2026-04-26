@@ -104,6 +104,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
+    if (interaction.commandName === 'embed') {
+      await handleEmbed(interaction);
+      return;
+    }
+
     if (interaction.commandName === 'join-authorized') {
       await handleJoinAuthorized(interaction);
       return;
@@ -438,6 +443,25 @@ async function handleDone(interaction) {
   writeTickets(tickets);
 
   await interaction.editReply('? Completed order embed sent.');
+}
+
+async function handleEmbed(interaction) {
+  const message = interaction.options.getString('message', true);
+
+  if (!message.trim()) {
+    throw new Error('Please enter a message to put in the embed.');
+  }
+
+  if (message.length > 4096) {
+    throw new Error('Embeds can only hold up to 4096 characters in the description.');
+  }
+
+  const embed = new EmbedBuilder()
+    .setDescription(message)
+    .setColor(0x5865f2);
+
+  await interaction.reply({ content: 'Embed sent.', ephemeral: true });
+  await interaction.channel.send({ embeds: [embed] });
 }
 async function handleCloseTicket(interaction) {
   assertCanStaff(interaction);
