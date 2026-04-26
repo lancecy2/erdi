@@ -35,6 +35,17 @@ const commands = [
     ),
 
   new SlashCommandBuilder()
+    .setName('embed')
+    .setDescription('Send your message as an embed in this channel.')
+    .addStringOption((option) =>
+      option
+        .setName('message')
+        .setDescription('The message to send inside the embed. Line breaks and spacing are preserved.')
+        .setRequired(true)
+        .setMaxLength(4000),
+    ),
+
+  new SlashCommandBuilder()
     .setName('join-authorized')
     .setDescription('Add a user who already authorized the bot to this server.')
     .addStringOption((option) =>
