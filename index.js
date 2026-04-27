@@ -190,7 +190,7 @@ async function handleSetupTicket(interaction) {
 
 async function sendTicketPanel(channel) {
   const embed = new EmbedBuilder()
-    .setTitle('\u{1F6D2} DonutLoot Order Claim')
+    .setTitle('\u{1F6D2} Erdi Donut Order Claim')
     .setDescription([
       'Need help receiving an order? Open a private ticket and our staff team will take care of you.',
       '',
