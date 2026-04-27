@@ -140,7 +140,7 @@ client.on(Events.MessageCreate, async (message) => {
       return;
     }
 
-    if (command === '!embed' || command.endsWith('\n!embed')) {
+    if (hasEmbedCommandLine(message.content)) {
       await handleEmbedMessageCommand(message);
     }
   } catch (error) {
@@ -493,11 +493,21 @@ async function sendEmbedFromText(message, embedText) {
 
 function getInlineEmbedText(content) {
   const lines = String(content || '').split(/\r?\n/);
-  if (lines.at(-1)?.trim().toLowerCase() !== '!embed') {
+  const commandLineIndex = lines.findIndex((line) => line.trim().toLowerCase() === '!embed');
+  if (commandLineIndex === -1 || lines.length === 1) {
     return '';
   }
 
-  return lines.slice(0, -1).join('\n').trim();
+  return [
+    ...lines.slice(0, commandLineIndex),
+    ...lines.slice(commandLineIndex + 1),
+  ].join('\n').trim();
+}
+
+function hasEmbedCommandLine(content) {
+  return String(content || '')
+    .split(/\r?\n/)
+    .some((line) => line.trim().toLowerCase() === '!embed');
 }
 
 async function handleCloseTicket(interaction) {
