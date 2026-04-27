@@ -140,7 +140,7 @@ client.on(Events.MessageCreate, async (message) => {
       return;
     }
 
-    if (command === '!embed') {
+    if (command === '!embed' || command.endsWith('\n!embed')) {
       await handleEmbedMessageCommand(message);
     }
   } catch (error) {
@@ -448,6 +448,13 @@ async function handleDone(interaction) {
 }
 
 async function handleEmbedMessageCommand(message) {
+  const inlineEmbedText = getInlineEmbedText(message.content);
+  if (inlineEmbedText) {
+    await sendEmbedFromText(message, inlineEmbedText);
+    await message.delete().catch(() => {});
+    return;
+  }
+
   const previousMessages = await message.channel.messages.fetch({
     before: message.id,
     limit: 10,
@@ -463,7 +470,16 @@ async function handleEmbedMessageCommand(message) {
     throw new Error('Send the message you want embedded first, then type `!embed`.');
   }
 
-  const embedText = sourceMessage.content;
+  await sendEmbedFromText(message, sourceMessage.content);
+  await message.delete().catch(() => {});
+  await sourceMessage.delete().catch(() => {});
+}
+
+async function sendEmbedFromText(message, embedText) {
+  if (!embedText.trim()) {
+    throw new Error('Please enter a message to put in the embed.');
+  }
+
   if (embedText.length > 4096) {
     throw new Error('Embeds can only hold up to 4096 characters in the description.');
   }
@@ -473,8 +489,15 @@ async function handleEmbedMessageCommand(message) {
     .setColor(0x5865f2);
 
   await message.channel.send({ embeds: [embed] });
-  await message.delete().catch(() => {});
-  await sourceMessage.delete().catch(() => {});
+}
+
+function getInlineEmbedText(content) {
+  const lines = String(content || '').split(/\r?\n/);
+  if (lines.at(-1)?.trim().toLowerCase() !== '!embed') {
+    return '';
+  }
+
+  return lines.slice(0, -1).join('\n').trim();
 }
 
 async function handleCloseTicket(interaction) {
