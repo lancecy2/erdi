@@ -104,11 +104,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
-    if (interaction.commandName === 'embed') {
-      await handleEmbed(interaction);
-      return;
-    }
-
     if (interaction.commandName === 'join-authorized') {
       await handleJoinAuthorized(interaction);
       return;
@@ -136,11 +131,18 @@ client.on(Events.InteractionCreate, async (interaction) => {
 client.on(Events.MessageCreate, async (message) => {
   try {
     if (message.author.bot || !message.guild) return;
-    if (message.content.trim().toLowerCase() !== '!verify') return;
+    const command = message.content.trim().toLowerCase();
 
-    assertCanAdminMessage(message);
-    await sendVerificationPanel(message.channel);
-    await message.reply('Verification panel posted.').catch(() => {});
+    if (command === '!verify') {
+      assertCanAdminMessage(message);
+      await sendVerificationPanel(message.channel);
+      await message.reply('Verification panel posted.').catch(() => {});
+      return;
+    }
+
+    if (command === '!embed') {
+      await handleEmbedMessageCommand(message);
+    }
   } catch (error) {
     console.error(error);
     await message.reply(error.message || 'Something went wrong.').catch(() => {});
@@ -445,24 +447,36 @@ async function handleDone(interaction) {
   await interaction.editReply('? Completed order embed sent.');
 }
 
-async function handleEmbed(interaction) {
-  const message = interaction.options.getString('message', true);
+async function handleEmbedMessageCommand(message) {
+  const previousMessages = await message.channel.messages.fetch({
+    before: message.id,
+    limit: 10,
+  });
+  const sourceMessage = previousMessages.find((candidate) => {
+    return candidate.author.id === message.author.id
+      && !candidate.author.bot
+      && candidate.content.trim()
+      && candidate.content.trim().toLowerCase() !== '!embed';
+  });
 
-  if (!message.trim()) {
-    throw new Error('Please enter a message to put in the embed.');
+  if (!sourceMessage) {
+    throw new Error('Send the message you want embedded first, then type `!embed`.');
   }
 
-  if (message.length > 4096) {
+  const embedText = sourceMessage.content;
+  if (embedText.length > 4096) {
     throw new Error('Embeds can only hold up to 4096 characters in the description.');
   }
 
   const embed = new EmbedBuilder()
-    .setDescription(message)
+    .setDescription(embedText)
     .setColor(0x5865f2);
 
-  await interaction.reply({ content: 'Embed sent.', ephemeral: true });
-  await interaction.channel.send({ embeds: [embed] });
+  await message.channel.send({ embeds: [embed] });
+  await message.delete().catch(() => {});
+  await sourceMessage.delete().catch(() => {});
 }
+
 async function handleCloseTicket(interaction) {
   assertCanStaff(interaction);
 
