@@ -43,6 +43,7 @@ const usersFile = path.join(dataDir, 'authorized-users.json');
 const ticketsFile = path.join(dataDir, 'tickets.json');
 const states = new Map();
 const ticketButtonId = 'ticket:open';
+const sellTicketButtonId = 'ticket:sell';
 const ticketModalId = 'ticket:order-modal';
 const ticketCloseButtonId = 'ticket:close';
 const orderIdInputId = 'ticket:order-id';
@@ -69,6 +70,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
   try {
     if (interaction.isButton() && interaction.customId === ticketButtonId) {
       await handleOpenTicketButton(interaction);
+      return;
+    }
+
+    if (interaction.isButton() && interaction.customId === sellTicketButtonId) {
+      await handleSellTicketButton(interaction);
       return;
     }
 
@@ -190,7 +196,7 @@ async function handleSetupTicket(interaction) {
 
 async function sendTicketPanel(channel) {
   const embed = new EmbedBuilder()
-    .setTitle('\u{1F6D2} Erdi Donut Order Claim')
+    .setTitle('\u{1F6D2} DonutLoot Order Claim')
     .setDescription([
       'Need help receiving an order? Open a private ticket and our staff team will take care of you.',
       '',
@@ -207,6 +213,11 @@ async function sendTicketPanel(channel) {
       .setLabel('Open Order Ticket')
       .setEmoji('\u{1F39F}\uFE0F')
       .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId(sellTicketButtonId)
+      .setLabel('Sell To Us')
+      .setEmoji('\u{1F4B8}')
+      .setStyle(ButtonStyle.Secondary),
   );
 
   await channel.send({ embeds: [embed], components: [row] });
@@ -252,6 +263,11 @@ async function handleOpenTicketButton(interaction) {
 
   modal.addComponents(new ActionRowBuilder().addComponents(orderInput));
   await interaction.showModal(modal);
+}
+
+async function handleSellTicketButton(interaction) {
+  await interaction.deferReply({ ephemeral: true });
+  await createSellTicket(interaction);
 }
 
 async function handleTicketModal(interaction) {
@@ -360,6 +376,94 @@ async function createVerifiedOrderTicket(interaction, orderId, order) {
   const staffMention = config.staffRoleId ? `<@&${config.staffRoleId}> ` : '';
   await channel.send({ content: `${staffMention}${interaction.user}`, embeds: [embed] });
   await interaction.editReply(`Ticket created: ${channel}`);
+}
+
+async function createSellTicket(interaction) {
+  const guild = interaction.guild;
+  const channelName = `sell-${interaction.user.username}`
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 90) || `sell-${interaction.user.id}`;
+
+  const permissionOverwrites = [
+    {
+      id: guild.roles.everyone.id,
+      deny: [PermissionFlagsBits.ViewChannel],
+    },
+    {
+      id: interaction.user.id,
+      allow: [
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ReadMessageHistory,
+      ],
+    },
+    {
+      id: client.user.id,
+      allow: [
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ReadMessageHistory,
+        PermissionFlagsBits.ManageChannels,
+      ],
+    },
+  ];
+
+  if (config.staffRoleId) {
+    permissionOverwrites.push({
+      id: config.staffRoleId,
+      allow: [
+        PermissionFlagsBits.ViewChannel,
+        PermissionFlagsBits.SendMessages,
+        PermissionFlagsBits.ReadMessageHistory,
+      ],
+    });
+  }
+
+  const channel = await guild.channels.create({
+    name: channelName,
+    type: ChannelType.GuildText,
+    parent: config.ticketCategoryId || undefined,
+    topic: `Sell ticket user: ${interaction.user.tag} (${interaction.user.id})`,
+    permissionOverwrites,
+    reason: `Sell ticket opened by ${interaction.user.tag}`,
+  });
+
+  const tickets = readTickets();
+  tickets[channel.id] = {
+    type: 'sell',
+    userId: interaction.user.id,
+    username: interaction.user.username,
+    createdAt: new Date().toISOString(),
+    done: false,
+  };
+  writeTickets(tickets);
+
+  const embed = new EmbedBuilder()
+    .setTitle('\u{1F4B8} Sell To Us Ticket')
+    .setDescription([
+      `Hi ${interaction.user}, thanks for opening a sell ticket.`,
+      '',
+      'Please send what you want to sell, your price, and any screenshots or proof staff should review.',
+      'A staff member will help you shortly.',
+    ].join('\n'))
+    .setColor(0x111111)
+    .setFooter({ text: 'DonutLoot Support \u2022 Sell to us' })
+    .setTimestamp();
+
+  const closeRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId(ticketCloseButtonId)
+      .setLabel('Staff Close Ticket')
+      .setEmoji('\u{1F512}')
+      .setStyle(ButtonStyle.Danger),
+  );
+
+  const staffMention = config.staffRoleId ? `<@&${config.staffRoleId}> ` : '';
+  await channel.send({ content: `${staffMention}${interaction.user}`, embeds: [embed], components: [closeRow] });
+  await interaction.editReply(`Sell ticket created: ${channel}`);
 }
 
 async function handleDone(interaction) {
