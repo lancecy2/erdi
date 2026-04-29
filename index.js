@@ -100,6 +100,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
       return;
     }
 
+    if (interaction.commandName === 'setup-sell-ticket') {
+      await handleSetupSellTicket(interaction);
+      return;
+    }
+
     if (interaction.commandName === 'setup-legit') {
       await handleSetupLegit(interaction);
       return;
@@ -196,7 +201,7 @@ async function handleSetupTicket(interaction) {
 
 async function sendTicketPanel(channel) {
   const embed = new EmbedBuilder()
-    .setTitle('\u{1F6D2} DonutLoot Order Claim')
+    .setTitle("\u{1F6D2} Erdi's Donut Order Claim")
     .setDescription([
       'Need help receiving an order? Open a private ticket and our staff team will take care of you.',
       '',
@@ -205,7 +210,7 @@ async function sendTicketPanel(channel) {
       '\u{1F512} Your ticket is private between you and staff.',
     ].join('\n'))
     .setColor(0x2ecc71)
-    .setFooter({ text: 'DonutLoot Support \u2022 Fast, private, secure' });
+    .setFooter({ text: "Erdi's Donut Support \u2022 Fast, private, secure" });
 
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -213,11 +218,37 @@ async function sendTicketPanel(channel) {
       .setLabel('Open Order Ticket')
       .setEmoji('\u{1F39F}\uFE0F')
       .setStyle(ButtonStyle.Primary),
+  );
+
+  await channel.send({ embeds: [embed], components: [row] });
+}
+
+async function handleSetupSellTicket(interaction) {
+  assertCanAdmin(interaction);
+  await interaction.reply({ content: '\u2705 Sell to us panel posted.', ephemeral: true });
+  await sendSellPanel(interaction.channel);
+}
+
+async function sendSellPanel(channel) {
+  const embed = new EmbedBuilder()
+    .setTitle('\u{1F4B8} Sell to Erdi\'s Donut')
+    .setDescription([
+      'Have items, money, or rare loot you want to sell? Open a private seller ticket and our staff team will review your offer.',
+      '',
+      '\u{1F4E6} Tell us **what you are selling** and the **quantity**.',
+      '\u{1F4B5} Include your **asking price** or let us make an offer.',
+      '\u{1F5BC}\uFE0F Add screenshots or proof so staff can verify everything faster.',
+      '\u{1F512} Your seller ticket is private between you and staff.',
+    ].join('\n'))
+    .setColor(0xf1c40f)
+    .setFooter({ text: "Erdi's Donut Seller Desk \u2022 Quick, fair, private" });
+
+  const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId(sellTicketButtonId)
-      .setLabel('Sell To Us')
+      .setLabel('Sell to Us')
       .setEmoji('\u{1F4B8}')
-      .setStyle(ButtonStyle.Secondary),
+      .setStyle(ButtonStyle.Success),
   );
 
   await channel.send({ embeds: [embed], components: [row] });
@@ -234,7 +265,7 @@ async function sendLegitPanel(channel) {
   const embed = new EmbedBuilder()
     .setTitle('\u2705 Are We Legit?')
     .setDescription([
-      'Share your experience with DonutLoot by reacting below.',
+      "Share your experience with Erdi's Donut by reacting below.",
       '',
       '\u2705 **Legit** - smooth order and delivery',
       '\u274C **Issue** - I had a problem with my order',
@@ -370,7 +401,7 @@ async function createVerifiedOrderTicket(interaction, orderId, order) {
     ].join('\n'))
     .addFields(buildOrderDetailFields(order))
     .setColor(0x2ecc71)
-    .setFooter({ text: 'DonutLoot Support \u2022 Verified order' })
+    .setFooter({ text: "Erdi's Donut Support \u2022 Verified order" })
     .setTimestamp();
 
   const staffMention = config.staffRoleId ? `<@&${config.staffRoleId}> ` : '';
@@ -442,15 +473,15 @@ async function createSellTicket(interaction) {
   writeTickets(tickets);
 
   const embed = new EmbedBuilder()
-    .setTitle('\u{1F4B8} Sell To Us Ticket')
+    .setTitle('\u{1F4B8} Sell to Us Ticket')
     .setDescription([
-      `Hi ${interaction.user}, thanks for opening a sell ticket.`,
+      `Hi ${interaction.user}, thanks for opening a seller ticket with Erdi's Donut.`,
       '',
-      'Please send what you want to sell, your price, and any screenshots or proof staff should review.',
-      'A staff member will help you shortly.',
+      'Please send what you want to sell, the quantity, your asking price, and any screenshots or proof staff should review.',
+      'A staff member will check the offer and get back to you shortly.',
     ].join('\n'))
     .setColor(0x111111)
-    .setFooter({ text: 'DonutLoot Support \u2022 Sell to us' })
+    .setFooter({ text: "Erdi's Donut Seller Desk \u2022 Sell to us" })
     .setTimestamp();
 
   const closeRow = new ActionRowBuilder().addComponents(
@@ -512,10 +543,10 @@ async function handleDone(interaction) {
 
   const orderEmbed = new EmbedBuilder()
     .setTitle('? Order Completed')
-    .setDescription(`?? **${escapeMarkdown(maskedBuyerName)}** has completed a purchase with DonutLoot.`)
+    .setDescription(`?? **${escapeMarkdown(maskedBuyerName)}** has completed a purchase with Erdi's Donut.`)
     .addFields(completedFields)
     .setColor(0xf1c40f)
-    .setFooter({ text: `DonutLoot Orders ? ${formatDateTime(new Date())}` })
+    .setFooter({ text: `Erdi's Donut Orders ? ${formatDateTime(new Date())}` })
     .setTimestamp();
 
   await ordersChannel.send({ embeds: [orderEmbed] });
@@ -523,13 +554,13 @@ async function handleDone(interaction) {
   const ticketEmbed = new EmbedBuilder()
     .setTitle('? Order Delivered')
     .setDescription([
-      'This order has been marked as completed. Thank you for shopping with DonutLoot!',
+      "This order has been marked as completed. Thank you for shopping with Erdi's Donut!",
       '',
       'If everything looks good, staff can close this ticket using the button below.',
     ].join('\n'))
     .addFields(ticketCompletedFields)
     .setColor(0x2ecc71)
-    .setFooter({ text: 'DonutLoot Delivery Complete' })
+    .setFooter({ text: "Erdi's Donut Delivery Complete" })
     .setTimestamp();
 
   const closeRow = new ActionRowBuilder().addComponents(

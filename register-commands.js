@@ -20,6 +20,11 @@ const commands = [
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
 
   new SlashCommandBuilder()
+    .setName('setup-sell-ticket')
+    .setDescription('Post the sell to us ticket panel in this channel.')
+    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+
+  new SlashCommandBuilder()
     .setName('setup-legit')
     .setDescription('Post the legit check reaction message in this channel.')
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
