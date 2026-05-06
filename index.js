@@ -531,28 +531,28 @@ async function handleDone(interaction) {
   const buyerName = member?.displayName || ticket.username || `User ${ticket.userId}`;
   const maskedBuyerName = maskCustomerName(buyerName);
   const completedFields = [
-    { name: '?? Customer', value: escapeMarkdown(maskedBuyerName), inline: true },
-    { name: '?? Item', value: deliveredItems.map((item) => escapeMarkdown(item.name)).join('\n'), inline: true },
-    { name: '?? Quantity', value: deliveredItems.map((item) => escapeMarkdown(item.quantity)).join('\n'), inline: true },
-    { name: '?? Completed By', value: `${interaction.user}`, inline: true },
+    { name: '\u{1F464} Customer', value: escapeMarkdown(maskedBuyerName), inline: true },
+    { name: '\u{1F4E6} Item', value: deliveredItems.map((item) => escapeMarkdown(item.name)).join('\n'), inline: true },
+    { name: '\u{1F522} Quantity', value: deliveredItems.map((item) => escapeMarkdown(item.quantity)).join('\n'), inline: true },
+    { name: '\u{2705} Completed By', value: `${interaction.user}`, inline: true },
   ];
   const ticketCompletedFields = [
     ...completedFields,
-    { name: '?? Order ID', value: escapeMarkdown(ticket.orderId), inline: true },
+    { name: '\u{1F9FE} Order ID', value: escapeMarkdown(ticket.orderId), inline: true },
   ];
 
   const orderEmbed = new EmbedBuilder()
-    .setTitle('? Order Completed')
-    .setDescription(`?? **${escapeMarkdown(maskedBuyerName)}** has completed a purchase with Erdi's Donut.`)
+    .setTitle('\u{1F389} Order Completed')
+    .setDescription(`\u{1F6CD}\uFE0F **${escapeMarkdown(maskedBuyerName)}** has completed a purchase with Erdi's Donut.`)
     .addFields(completedFields)
     .setColor(0xf1c40f)
-    .setFooter({ text: `Erdi's Donut Orders ? ${formatDateTime(new Date())}` })
+    .setFooter({ text: `Erdi's Donut Orders \u2022 ${formatDateTime(new Date())}` })
     .setTimestamp();
 
   await ordersChannel.send({ embeds: [orderEmbed] });
 
   const ticketEmbed = new EmbedBuilder()
-    .setTitle('? Order Delivered')
+    .setTitle('\u{1F4E6} Order Delivered')
     .setDescription([
       "This order has been marked as completed. Thank you for shopping with Erdi's Donut!",
       '',
@@ -567,7 +567,7 @@ async function handleDone(interaction) {
     new ButtonBuilder()
       .setCustomId(ticketCloseButtonId)
       .setLabel('Staff Close Ticket')
-      .setEmoji('??')
+      .setEmoji('\u{1F512}')
       .setStyle(ButtonStyle.Danger),
   );
 
@@ -579,7 +579,7 @@ async function handleDone(interaction) {
   ticket.deliveredItems = deliveredItems;
   writeTickets(tickets);
 
-  await interaction.editReply('? Completed order embed sent.');
+  await interaction.editReply('\u{2705} Completed order embed sent.');
 }
 
 async function handleEmbedMessageCommand(message) {
